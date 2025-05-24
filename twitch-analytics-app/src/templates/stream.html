@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Stream Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"/>
+    <!-- Twitch-like font: Inter (closest open alternative) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #18181b; color: #fff; font-family: 'Inter', Arial, sans-serif; }
+        .card { background: #23272a; border-radius: 1rem; }
+        .btn-twitch { background: #9147ff; color: #fff; }
+        .btn-twitch:hover { background: #772ce8; }
+    </style>
+    <script>
+        function addField(section, name, placeholder) {
+            const container = document.getElementById(section);
+            const div = document.createElement('div');
+            div.className = "input-group mb-2";
+            div.innerHTML = `<input type="text" class="form-control" name="${name}[]" placeholder="${placeholder}" required>
+                             <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">Remove</button>`;
+            container.appendChild(div);
+        }
+        function addBitDonationField() {
+            const container = document.getElementById('bit_donations');
+            const div = document.createElement('div');
+            div.className = "input-group mb-2";
+            div.innerHTML = `<input type="text" class="form-control" name="bit_donations_usernames[]" placeholder="Username" required>
+                             <input type="number" class="form-control" name="bit_donations_amounts[]" placeholder="Bits (max 100000)" min="1" max="100000" required>
+                             <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">Remove</button>`;
+            container.appendChild(div);
+        }
+    </script>
+</head>
+<body>
+<div class="container py-5">
+    <div class="mb-4">
+        <a href="{{ url_for('home') }}" class="btn btn-twitch btn-lg" style="font-weight:700;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#fff" class="me-2" viewBox="0 0 16 16">
+                <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 2 7.5V14a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-2h2v2a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1V7.5a.5.5 0 0 0-.146-.354l-6-6z"/>
+            </svg>
+            Home
+        </a>
+    </div>
+    <h2 data-aos="fade-down">Stream: {{ stream.title or stream.date }} ({{ stream.streamer }})</h2>
+    <form method="post" class="mb-4" data-aos="fade-right">
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label class="form-label">Hour (HH:MM:SS)</label>
+                <input type="text" class="form-control" name="hour" placeholder="e.g. 13:00:00" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Viewers</label>
+                <input type="number" class="form-control" name="viewers" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Followers</label>
+                <input type="number" class="form-control" name="followers" required>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4" data-aos="fade-up">
+                <label class="form-label">Subs</label>
+                <div id="subs" class="mb-2"></div>
+                <button type="button" class="btn btn-twitch" onclick="addField('subs','subs_usernames','Username')">Add Sub</button>
+            </div>
+            <div class="col-md-4" data-aos="fade-up">
+                <label class="form-label">Donations</label>
+                <div id="donations" class="mb-2"></div>
+                <button type="button" class="btn btn-twitch" onclick="addField('donations','donations_usernames','Username')">Add Donation</button>
+            </div>
+            <div class="col-md-4" data-aos="fade-up">
+                <label class="form-label">Sub Donations</label>
+                <div id="sub_donations" class="mb-2"></div>
+                <button type="button" class="btn btn-twitch" onclick="addField('sub_donations','sub_donations_usernames','Username')">Add Sub Donation</button>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6" data-aos="fade-up">
+                <label class="form-label">Bit Donations</label>
+                <div id="bit_donations" class="mb-2"></div>
+                <button type="button" class="btn btn-twitch" onclick="addBitDonationField()">Add Bit Donation</button>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success btn-lg" data-aos="zoom-in">Add Hourly Stat</button>
+    </form>
+    <h4 class="mt-5" data-aos="fade-left">Hourly Stats for {{ stream.date }}</h4>
+    <div class="row">
+        {% for stat in stats %}
+        <div class="col-md-6">
+            <div class="card mb-3 p-3" data-aos="fade-up">
+                <h5>Hour: {{ stat.hour }}</h5>
+                <span class="badge bg-twitch">Viewers: {{ stat.viewers }}</span>
+                <span class="badge bg-info">Followers: {{ stat.followers }}</span>
+                <div class="mt-2">
+                    <strong>Subs:</strong>
+                    <ul>
+                        {% for sub in stat.subs.split(',') if stat.subs %}
+                        <li>{{ sub }}</li>
+                        {% endfor %}
+                    </ul>
+                    <strong>Donations:</strong>
+                    <ul>
+                        {% for dono in stat.donations.split(',') if stat.donations %}
+                        <li>{{ dono }}</li>
+                        {% endfor %}
+                    </ul>
+                    <strong>Sub Donations:</strong>
+                    <ul>
+                        {% for sd in stat.sub_donations.split(',') if stat.sub_donations %}
+                        <li>{{ sd }}</li>
+                        {% endfor %}
+                    </ul>
+                    <strong>Bit Donations:</strong>
+                    <ul>
+                        {% for bd in stat.bit_donations.split(';') if stat.bit_donations %}
+                        <li>
+                            {% set parts = bd.split(':') %}
+                            {{ parts[0] }}: {{ parts[1] }} bits
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="card p-3 mt-4" data-aos="zoom-in">
+        <h5>Total for the Day</h5>
+        <span class="badge bg-twitch">Total Viewers: {{ total_viewers }}</span>
+        <span class="badge bg-info">Total Followers: {{ total_followers }}</span>
+        <div class="mt-3">
+            <a href="{{ url_for('analytics.stream_pdf_preview', stream_id=stream.id) }}" target="_blank" class="btn btn-secondary ms-2">Preview PDF Report for the Day</a>
+            <a href="{{ url_for('analytics.stream_pdf_download', stream_id=stream.id) }}" class="btn btn-twitch ms-2">Download PDF Report for the Day</a>
+        </div>
+    </div>
+</div>
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script>
+  AOS.init({ once: false, duration: 800, easing: 'ease-in-out' });
+</script>
+</body>
+</html>

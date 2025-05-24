@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Twitch Analytics App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #18181b; color: #fff; font-family: 'Inter', Arial, sans-serif; }
+        .stream-card { background: #23272a; border-radius: 1rem; margin-bottom: 1rem; transition: transform 0.2s; }
+        .stream-card:hover { transform: scale(1.03); box-shadow: 0 0 20px #9147ff55; }
+        .btn-twitch { background: #9147ff; color: #fff; }
+        .btn-twitch:hover { background: #772ce8; }
+    </style>
+</head>
+<body>
+<div class="container py-5">
+    <h1 class="mb-4 text-center animate__animated animate__fadeInDown" data-aos="fade-down">Twitch Analytics Tracker</h1>
+    <div class="mb-3 text-center" data-aos="zoom-in">
+        <a href="{{ url_for('analytics.new_stream') }}" class="btn btn-twitch btn-lg me-2 animate__animated animate__pulse animate__infinite">Add New Stream</a>
+        <a href="{{ url_for('analytics.reports') }}" class="btn btn-primary btn-lg me-2 animate__animated animate__pulse animate__infinite">View Reports</a>
+        <form action="{{ url_for('analytics.clear_streams') }}" method="post" style="display:inline;">
+            <button type="submit" class="btn btn-danger btn-lg animate__animated animate__shakeX">Clear All Streams</button>
+        </form>
+    </div>
+    <h3 class="mt-5 animate__animated animate__fadeInLeft" data-aos="fade-right">Recent Streams</h3>
+    <div>
+        {% for stream in streams %}
+        <div class="stream-card p-3 animate__animated animate__fadeInUp" data-aos="fade-up">
+            <h5>
+                <a href="{{ url_for('analytics.stream', stream_id=stream.id) }}" class="text-twitch" style="color:#9147ff;">
+                    {{ stream.title or stream.date }} ({{ stream.streamer }})
+                </a>
+            </h5>
+            <span class="badge bg-secondary">{{ stream.date }}</span>
+        </div>
+        {% else %}
+        <div class="stream-card p-3" data-aos="fade-up">No streams yet.</div>
+        {% endfor %}
+    </div>
+</div>
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script>
+  AOS.init({ once: false, duration: 800, easing: 'ease-in-out' });
+</script>
+</body>
+</html>
