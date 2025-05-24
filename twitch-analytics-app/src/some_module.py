@@ -1,3 +1,0 @@
-from mytypes import TypedDict, List  # was: from types import TypedDict, List
-
-# ...add your type definitions here if needed...

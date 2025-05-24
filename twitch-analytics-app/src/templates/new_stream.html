@@ -56,15 +56,15 @@
     <form method="post" data-aos="zoom-in">
         <div class="mb-3">
             <label for="streamer" class="form-label">Streamer Name</label>
-            <input type="text" class="form-control" id="streamer" name="streamer" value="Da1lyVitamin" readonly>
+            <input type="text" class="form-control" id="streamer" name="streamer" value="{{ streamer_val or '' }}" required>
         </div>
         <div class="mb-3">
             <label for="date" class="form-label">Stream Date</label>
-            <input type="date" class="form-control" id="date" name="date" required>
+            <input type="date" class="form-control" id="date" name="date" value="{{ date or '' }}" required>
         </div>
         <div class="mb-3">
             <label for="title" class="form-label">Stream Title (optional)</label>
-            <input type="text" class="form-control" id="title" name="title">
+            <input type="text" class="form-control" id="title" name="title" value="{{ title or '' }}">
         </div>
         <button type="submit" class="btn btn-twitch">Create Stream</button>
     </form>
